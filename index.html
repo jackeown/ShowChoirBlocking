@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Choir Blocking</title>
+    <link rel="stylesheet" href="mobile-drag-drop/release/default.css">
+    <script src="mobile-drag-drop/release/index.min.js"></script>
+
+</head>
+<body>
+    
+    <style>
+
+        div{
+            background: rgba(0,0,0,0.1);
+        }
+
+        .stage{
+            width: 900px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+
+        .stage-row{
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .spot{
+            width: 30px;
+            height: 30px;
+            outline: 1px solid black;
+        }
+
+        .spot > .person{
+            position: relative;
+            top:-50%;
+            left: -50%;
+        }
+
+        .person {
+            width: 60px;
+            height: 60px;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            outline: 1px solid black;
+            background: rgba(200,0,200,0.2)
+        }
+
+        #offstage{
+            min-width: 100px;
+            min-height: 100px;
+            padding: 20px;
+        }
+
+    </style>
+
+
+
+    <script src="./showChoir.js"></script>
+    <script>
+        let stage = new Stage(6,20,"main_stage");
+        let offstage = new OffStage();
+        offstage.addPerson(new Person("Jack"));
+        offstage.addPerson(new Person("James"));
+
+        document.body.append(stage.el);
+        document.body.append(offstage.el);
+        
+    </script>
+
+
+
+<script>
+    MobileDragDrop.polyfill({});
+</script>
+
+
+
+</body>
+</html>
