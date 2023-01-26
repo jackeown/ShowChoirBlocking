@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,38 +10,51 @@
     <script src="mobile-drag-drop/release/index.min.js"></script>
 
 </head>
-<body>
-    
-    <style>
 
-        div{
-            background: rgba(0,0,0,0.1);
+<body>
+
+    <style>
+        @media screen and (max-width: 480px) {
+            .stage {
+                height: 100%;
+                width: 100%;
+            }
         }
 
-        .stage{
+        div {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .stage {
             width: 900px;
             height: 600px;
+            /* max-width: 100%; */
+
+            margin: auto;
             display: flex;
+            flex: None;
             flex-direction: column;
             justify-content: space-evenly;
         }
 
-        .stage-row{
+        .stage-row {
             display: flex;
+            flex: 1;
             justify-content: space-evenly;
         }
 
-        .spot{
-            width: 30px;
-            height: 30px;
+        .spot {
             outline: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .spot > .person{
+        /* .spot > .person{
             position: relative;
             top:-50%;
             left: -50%;
-        }
+        } */
 
         .person {
             width: 60px;
@@ -49,38 +63,63 @@
             align-items: center;
             display: flex;
             outline: 1px solid black;
-            background: rgba(200,0,200,0.2)
+            background: rgba(200, 0, 200, 0.2)
         }
 
-        #offstage{
+        #offstage {
             min-width: 100px;
-            min-height: 100px;
+            max-height: 100px;
             padding: 20px;
+            margin: auto;
         }
-
     </style>
 
 
-
+    <script src="./sillyMaths.js"></script>
     <script src="./showChoir.js"></script>
     <script>
-        let stage = new Stage(6,20,"main_stage");
-        let offstage = new OffStage();
-        offstage.addPerson(new Person("Jack"));
-        offstage.addPerson(new Person("James"));
+        let stage = new Stage(6, 21, "main_stage");
+        let offstage = new Stage(1,1, "offstage");
+        let names = [{ id: 1, name: 'James McKeown' },
+                    { id: 2, name: 'Michael' },
+                    { id: 3, name: 'Jack' },
+                    { id: 4, name: 'Sarah' },
+                    { id: 5, name: 'Micah' },
+                    { id: 6, name: 'Nora' },
+                    { id: 7, name: 'Grace' },
+                    { id: 8, name: 'Angus' },
+                    { id: 9, name: 'Baba' },
+                    { id: 10, name: 'Nona' },
+                    { id: 11, name: 'Mimi' },
+                    { id: 12, name: 'Mooshoo' },
+                    { id: 13, name: 'Punch' },
+                    { id: 14, name: 'Ariel' },
+                    { id: 15, name: 'Archer' },
+                    { id: 16, name: 'Cole' },
+                    { id: 17, name: 'Kelly' }
+        ];
+        // for(i=8; i<100; i++){
+        //     names.push({id:i, name:`student-${i}`})
+        // }
+        for(let person of names){
+            stage.addPerson(new Person(person.name, `person-${person.id}`));
+        }
+        offstage.addPerson(new Person("Jack", 'person-1'));
+        offstage.addPerson(new Person("James", 'person-2'));
 
         document.body.append(stage.el);
         document.body.append(offstage.el);
-        
+
     </script>
 
 
 
-<script>
-    MobileDragDrop.polyfill({});
-</script>
+    <script>
+        MobileDragDrop.polyfill({});
+    </script>
 
 
 
 </body>
+
 </html>
