@@ -158,3 +158,27 @@ class Stage {
     }
 }
 
+class Scene{
+    constructor(Stages, title, id){
+        this.Stages = Stages;
+        this.title = title;
+        this.el = document.createElement("div");
+        this.el.id = id
+        this.el.classList.add("scene");
+        let titleEl = document.createElement("h1");
+        titleEl.innerText=title;
+        this.el.appendChild(titleEl);
+        let stagesDiv = document.createElement("div");
+        stagesDiv.classList.add("stages-list")
+        for(let stage of Stages){
+            stagesDiv.appendChild(stage.el)
+        }
+        this.el.appendChild(stagesDiv);
+    }
+    serialize(){
+        return this.Stages.map(x => x.serialize())
+    }
+    deserialize(str){
+        str.forEach((x,i) => this.Stages[i].deserialize(x))
+    }
+}

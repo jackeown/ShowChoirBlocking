@@ -26,8 +26,9 @@
         }
 
         .stage {
-            width: 900px;
-            height: 600px;
+            /* width: 1100px; */
+            height: 90%;
+            width: 80%;
             /* max-width: 100%; */
 
             margin: auto;
@@ -44,7 +45,7 @@
         }
 
         .spot {
-            outline: 1px solid black;
+            outline: 1px solid rgb(221, 215, 215);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -62,7 +63,7 @@
             justify-content: center;
             align-items: center;
             display: flex;
-            outline: 1px solid black;
+            outline: 1px solid rgb(200, 190, 190);
             background: rgba(200, 0, 200, 0.2)
         }
 
@@ -72,6 +73,22 @@
             padding: 20px;
             margin: auto;
         }
+        #house-left, #house-right{
+            /* max-width: 100px; */
+            width: 10%;
+        }
+        .stages-list{
+            display:flex;
+            flex-direction: row;
+            width: 100%;
+            height: 100%;
+        }
+        .scene{
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 
 
@@ -79,7 +96,9 @@
     <script src="./showChoir.js"></script>
     <script>
         let stage = new Stage(6, 21, "main_stage");
-        let offstage = new Stage(1,1, "offstage");
+        let houseleft = new Stage(1,1, "house-left");
+        let houseright = new Stage(1,1, "house-right");
+        let scene = new Scene([houseleft, stage, houseright], 'default scene', 'scene1id')
         let names = [{ id: 1, name: 'James McKeown' },
                     { id: 2, name: 'Michael' },
                     { id: 3, name: 'Jack' },
@@ -104,11 +123,11 @@
         for(let person of names){
             stage.addPerson(new Person(person.name, `person-${person.id}`));
         }
-        offstage.addPerson(new Person("Jack", 'person-1'));
-        offstage.addPerson(new Person("James", 'person-2'));
-
-        document.body.append(stage.el);
-        document.body.append(offstage.el);
+        houseleft.addPerson(new Person("Jack", 'person-1'));
+        houseright.addPerson(new Person("James", 'person-2'));
+        document.body.append(scene.el);
+        // document.body.append(stage.el);
+        // document.body.append(offstage.el);
 
     </script>
 
