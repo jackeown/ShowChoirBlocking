@@ -1,4 +1,20 @@
 
+function enableEdit(scene, titleEl) {
+    return function () {
+        console.log('enableEdit')
+        titleEl.contentEditable = true;
+        titleEl.setAttribute("data-text", titleEl.innerText);
+        scene.title = titleEl.innerText;
+    }
+}
+
+function saveEdit(scene, titleEl) {
+    return function () {
+        console.log('saveEdit')
+        scene.title = titleEl.getAttribute("data-text");
+        titleEl.contentEditable = false;
+    }
+}
 
 function personDragHandler(person) {
     return function (ev) {
@@ -64,6 +80,8 @@ class Spot {
         this.el = document.createElement("div");
         this.el.classList.add("spot")
         this.el.addEventListener("dragover", function (ev) { ev.preventDefault() })
+        this.el.addEventListener("dragenter", function (ev) { ev.preventDefault() })
+
         this.el.addEventListener("drop", dropHandler(this))
     }
 
@@ -126,7 +144,7 @@ class Stage {
             for (let [j, col] of row.entries()) {
                 // console.log(i,j)
                 let spot = this.spots[i * row.length + j];
-                for(let person of spot.people){
+                for (let person of spot.people) {
                     spot.removePerson(person);
                 }
                 for (let personRep of col) {
@@ -137,48 +155,64 @@ class Stage {
         }
     }
     addPerson(person) {
-        let i = Math.floor(this.spots.length/2);
+        let i = Math.floor(this.spots.length / 2);
         let j = 0;
         // let gen = findGenerator(this.spots.length)
         // console.log(this.spots.length)
         // console.log(gen)
         while (this.spots[i].people.length > j) {
-            if (i >= this.spots.length-1) {
+            if (i >= this.spots.length - 1) {
                 j++
             }
-            i+= 2
+            i += 2
             i %= this.spots.length
         }
         this.spots[i].addPerson(person)
     }
-    removePerson(person){
-        for(let spot of this.spots){
+    removePerson(person) {
+        for (let spot of this.spots) {
             spot.removePerson(person);
         }
     }
 }
 
-class Scene{
-    constructor(Stages, title, id){
+class Scene {
+    constructor(Stages, title, id) {
         this.Stages = Stages;
         this.title = title;
         this.el = document.createElement("div");
         this.el.id = id
         this.el.classList.add("scene");
         let titleEl = document.createElement("h1");
-        titleEl.innerText=title;
+        this.titleEl = titleEl;
+        // titleEl.addEventListener("click", function(){
+        //     var newText = prompt("Enter new text:");
+        //     titleEl.innerHTML = newText;
+        // });
+        let ee = enableEdit(this, this.titleEl);
+        let se = saveEdit(this, this.titleEl);
+        titleEl.addEventListener("focus", ee);
+        titleEl.addEventListener("click", ee);
+        titleEl.addEventListener("blur", se);
+        titleEl.innerText = title;
         this.el.appendChild(titleEl);
         let stagesDiv = document.createElement("div");
         stagesDiv.classList.add("stages-list")
-        for(let stage of Stages){
+        for (let stage of Stages) {
             stagesDiv.appendChild(stage.el)
         }
         this.el.appendChild(stagesDiv);
     }
-    serialize(){
-        return this.Stages.map(x => x.serialize())
+    serialize() {
+        return JSON.stringify({
+            title: this.title,
+            stages:this.Stages.map(x => x.serialize()),
+            id: this.id})
     }
-    deserialize(str){
-        str.forEach((x,i) => this.Stages[i].deserialize(x))
+    deserialize(str) {
+        let {title, stages, id} = JSON.parse(str)
+        this.title=title;
+        stages.forEach((x, i) => this.Stages[i].deserialize(x))
+        this.id = id
     }
 }

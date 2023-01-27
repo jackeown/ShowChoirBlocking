@@ -7,8 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Show Choir Blocking</title>
     <link rel="stylesheet" href="mobile-drag-drop/release/default.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <script src="mobile-drag-drop/release/index.min.js"></script>
-
+    <script>
+        // options are optional ;)
+        MobileDragDrop.polyfill({
+            // use this to make use of the scroll behaviour
+            dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+        });
+    </script>
 </head>
 
 <body>
@@ -89,8 +97,23 @@
             display: flex;
             flex-direction: column;
         }
+        .back-arrow{
+            position:absolute;
+            top:50vh;
+            left:2px;
+        }
+        .forward-arrow{
+            position:absolute;
+            top:50vh;
+            right:2px;
+        }
     </style>
 
+<button><i class="material-icons" id="upload">upload</i></button>
+<button><i class="material-icons" id="save">save</i></button>
+<button><i class="material-icons" id="duplicate">control_point_duplicate</i></button>
+<i class="material-icons forward-arrow" style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_forward_ios</i>
+<i class="material-icons back-arrow" style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_back_ios</i>
 
     <script src="./sillyMaths.js"></script>
     <script src="./showChoir.js"></script>
@@ -128,6 +151,8 @@
         document.body.append(scene.el);
         // document.body.append(stage.el);
         // document.body.append(offstage.el);
+        document.getElementById('save').addEventListener('click', _ => window.localStorage[`scene.${scene.id}`]=scene.serialize())
+        document.getElementById('upload').addEventListener('click', _ => scene.deserialize(window.localStorage[`scene.${scene.id}`]))
 
     </script>
 
