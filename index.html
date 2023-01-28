@@ -7,8 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Show Choir Blocking</title>
     <link rel="stylesheet" href="mobile-drag-drop/release/default.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+
     <script src="mobile-drag-drop/release/index.min.js"></script>
     <script>
         // options are optional ;)
@@ -29,21 +32,24 @@
             }
         }
 
-        div {
+        /* div {
             background: rgba(0, 0, 0, 0.1);
-        }
+        } */
 
         .stage {
             /* width: 1100px; */
-            height: 90%;
+            height: 100%;
             width: 80%;
             /* max-width: 100%; */
-
             margin: auto;
+            padding: 1em;
+            box-sizing: border-box;
             display: flex;
             flex: None;
             flex-direction: column;
             justify-content: space-evenly;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .stage-row {
@@ -53,7 +59,8 @@
         }
 
         .spot {
-            outline: 1px solid rgb(221, 215, 215);
+            background-color: whitesmoke;
+            outline: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -66,13 +73,16 @@
         } */
 
         .person {
-            width: 60px;
-            height: 60px;
+            width: 2em;
+            height: 2em;
+            position: absolute;
             justify-content: center;
             align-items: center;
             display: flex;
             outline: 1px solid rgb(200, 190, 190);
-            background: rgba(200, 0, 200, 0.2)
+            /* background: rgb(255, 164, 255); */
+            z-index: 1;
+            border-radius: 100%;
         }
 
         #offstage {
@@ -81,81 +91,112 @@
             padding: 20px;
             margin: auto;
         }
-        #house-left, #house-right{
+
+        #house-left,
+        #house-right {
             /* max-width: 100px; */
             width: 10%;
         }
-        .stages-list{
-            display:flex;
+
+        .stages-list {
+            padding: 5px;
+            display: flex;
             flex-direction: row;
             width: 100%;
             height: 100%;
         }
-        .scene{
+
+        .scene {
             width: 100%;
-            height: 100vh;
+            height: 90vh;
             display: flex;
             flex-direction: column;
         }
-        .back-arrow{
-            position:absolute;
-            top:50vh;
-            left:2px;
+
+        .back-arrow {
+            position: absolute;
+            top: 50vh;
+            left: 2px;
         }
-        .forward-arrow{
-            position:absolute;
-            top:50vh;
-            right:2px;
+
+        .forward-arrow {
+            position: absolute;
+            top: 50vh;
+            right: 2px;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
         }
     </style>
 
-<button><i class="material-icons" id="upload">upload</i></button>
-<button><i class="material-icons" id="save">save</i></button>
-<button><i class="material-icons" id="duplicate">control_point_duplicate</i></button>
-<i class="material-icons forward-arrow" style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_forward_ios</i>
-<i class="material-icons back-arrow" style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_back_ios</i>
+    <button id="upload"><i class="material-icons">upload</i></button>
+    <button id="save"><i class="material-icons">save</i></button>
+    <button id="upload-file"><i class="material-icons">upload_file</i></button>
+    <button id="save-file"><i class="material-icons">download</i></button>
+
+    <button id="duplicate"><i class="material-icons">control_point_duplicate</i></button>
+    <i class="material-icons forward-arrow"
+        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_forward_ios</i>
+    <i class="material-icons back-arrow"
+        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_back_ios</i>
 
     <script src="./sillyMaths.js"></script>
     <script src="./showChoir.js"></script>
     <script>
-        let stage = new Stage(6, 21, "main_stage");
-        let houseleft = new Stage(1,1, "house-left");
-        let houseright = new Stage(1,1, "house-right");
+        let stage = new Stage(6, 41, "main_stage", 10);
+        let houseleft = new Stage(1, 1, "house-left");
+        let houseright = new Stage(1, 1, "house-right");
         let scene = new Scene([houseleft, stage, houseright], 'default scene', 'scene1id')
-        let names = [{ id: 1, name: 'James McKeown' },
-                    { id: 2, name: 'Michael' },
-                    { id: 3, name: 'Jack' },
-                    { id: 4, name: 'Sarah' },
-                    { id: 5, name: 'Micah' },
-                    { id: 6, name: 'Nora' },
-                    { id: 7, name: 'Grace' },
-                    { id: 8, name: 'Angus' },
-                    { id: 9, name: 'Baba' },
-                    { id: 10, name: 'Nona' },
-                    { id: 11, name: 'Mimi' },
-                    { id: 12, name: 'Mooshoo' },
-                    { id: 13, name: 'Punch' },
-                    { id: 14, name: 'Ariel' },
-                    { id: 15, name: 'Archer' },
-                    { id: 16, name: 'Cole' },
-                    { id: 17, name: 'Kelly' }
+        let names = [{ id: 1, name: 'James McKeown', color: 0 },
+        { id: 2, name: 'Michael', color: 0 },
+        { id: 3, name: 'Jack', color: 0 },
+        { id: 4, name: 'Sarah', color: 1 },
+        { id: 5, name: 'Micah', color: 0 },
+        { id: 6, name: 'Nora', color: 1 },
+        { id: 7, name: 'Grace', color: 1 },
+        { id: 8, name: 'Angus', color: 0 },
+        { id: 9, name: 'Baba', color: 0 },
+        { id: 10, name: 'Nona', color: 1 },
+        { id: 11, name: 'Mimi', color: 1 },
+        { id: 12, name: 'Mooshoo', color: 0 },
+        { id: 13, name: 'Punch', color: 0 },
+        { id: 14, name: 'Ariel', color: 1 },
+        { id: 15, name: 'Archer', color: 0 },
+        { id: 16, name: 'Cole', color: 0 },
+        { id: 17, name: 'Kelly', color: 1 }
         ];
         // for(i=8; i<100; i++){
         //     names.push({id:i, name:`student-${i}`})
         // }
-        for(let person of names){
-            stage.addPerson(new Person(person.name, `person-${person.id}`));
+        for (let person of names) {
+            let color;
+            if (person.color === 1) { color = '#ff3399'; }
+            else { color = '#0066ff'; }
+            stage.addPerson(new Person(person.name, `${person.id}`, color));
         }
-        houseleft.addPerson(new Person("Jack", 'person-1'));
-        houseright.addPerson(new Person("James", 'person-2'));
+        // houseleft.addPerson(new Person("Jack", 'person-1'));
+        // houseright.addPerson(new Person("James", 'person-2'));
         document.body.append(scene.el);
         // document.body.append(stage.el);
         // document.body.append(offstage.el);
-        document.getElementById('save').addEventListener('click', _ => window.localStorage[`scene.${scene.id}`]=scene.serialize())
+        function downloadState(state) {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([state], { type: "application/json" }));
+            link.download = 'myshow.json';
+            link.click();
+        }
+        let uploaderEl = document.createElement('input')
+        uploaderEl.type = 'file'
+        uploaderEl.addEventListener('change', async _ => { console.log(uploaderEl.files[0]); scene.deserialize(await uploaderEl.files[0].text()) }, false)
+        async function uploadState() {
+            uploaderEl.click()
+        }
+        document.getElementById('save').addEventListener('click', _ => window.localStorage[`scene.${scene.id}`] = scene.serialize())
         document.getElementById('upload').addEventListener('click', _ => scene.deserialize(window.localStorage[`scene.${scene.id}`]))
-
+        document.getElementById('upload-file').addEventListener('click', _ => uploadState(), false)
+        document.getElementById('save-file').addEventListener('click', _ => downloadState(scene.serialize()))
     </script>
-
 
 
     <script>

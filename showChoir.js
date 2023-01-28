@@ -3,7 +3,7 @@ function enableEdit(scene, titleEl) {
     return function () {
         console.log('enableEdit')
         titleEl.contentEditable = true;
-        titleEl.setAttribute("data-text", titleEl.innerText);
+        // titleEl.setAttribute("data-text", titleEl.innerText);
         scene.title = titleEl.innerText;
     }
 }
@@ -11,7 +11,8 @@ function enableEdit(scene, titleEl) {
 function saveEdit(scene, titleEl) {
     return function () {
         console.log('saveEdit')
-        scene.title = titleEl.getAttribute("data-text");
+        scene.title = titleEl.innerText;
+        // scene.title = titleEl.getAttribute("data-text");
         titleEl.contentEditable = false;
     }
 }
@@ -26,7 +27,7 @@ function personDragHandler(person) {
 }
 
 class Person {
-    constructor(name, id) {
+    constructor(name, id, color) {
         this.id = id;
         this.name = name;
         this.spot = null;
@@ -34,9 +35,32 @@ class Person {
         this.el = document.createElement("div");
         this.el.classList.add("person");
         this.el.draggable = true;
-        this.el.id = id;
-        this.el.innerText = name;
+        this.el.style = `background:${color};`
+        this.el.setAttribute('data-person-id', id);
+        this.el.setAttribute('data-person-name', name);
+        this.el.setAttribute('data-person-color', color);
+
+        // this.el.innerText = name;
+        // this.el.addEventListener('mouseover', function(e){alert(name);e.preventDefault();})
+        this.el.innerText = id;
         this.el.addEventListener("dragstart", personDragHandler(this));
+    }
+    serialize() {
+        return JSON.stringify({ name: this.name, id: this.id, color: this.color })
+    }
+    deserialize(str) {
+        let { name, id, color } = JSON.parse(str)
+        this.name = name;
+        this.id = id;
+        this.color = color;
+        this.el.style = `background:${color};`
+        this.el.setAttribute('data-person-id', id);
+        this.el.setAttribute('data-person-name', name)
+        this.el.innerText = id;
+    }
+    clone() {
+        let { name, id, color } = JSON.parse(this.serialize())
+        return new Person(name, id, color)
     }
 }
 
@@ -99,7 +123,7 @@ class Spot {
 
 
 class Stage {
-    constructor(height, width, id) {
+    constructor(height, width, id, numberLineRange) {
         this.height = height;
         this.width = width;
         this.id = id;
@@ -107,7 +131,7 @@ class Stage {
         this.el.id = id;
         this.el.classList.add("stage");
         this.spots = [];
-
+        this.numberLineRange = numberLineRange;
         for (let r = 0; r < this.height; r++) {
             let row = document.createElement("div");
             row.classList.add("stage-row");
@@ -122,17 +146,36 @@ class Stage {
             }
             this.el.append(row);
         }
+        this.numberLineDiv = document.createElement("div");
+        this.numberLineDiv.style = "display: flex; justify-content:space-around;"
+        if (!(numberLineRange === undefined)) {
+            for (let i = -numberLineRange; i <= numberLineRange; i++) {
+                let d = document.createElement("div")
+                d.id = `number-${i}`
+                d.innerText = Math.abs(i)
+                this.numberLineDiv.appendChild(d)
+            }
+            this.el.append(this.numberLineDiv)
+        }
     }
 
     serialize() {
-        let rows = Array.from(document.querySelectorAll(`.stage-${this.id}-row`));
+        let rows = Array.from(this.el.querySelectorAll(`.stage-${this.id}-row`));
         // console.log(rows)
         let stageState = [];
         for (let row of rows) {
             let rowState = [];
             for (let spot of Array.from(row.querySelectorAll(`.spot`))) {
                 let persons = Array.from(spot.querySelectorAll(`.person`));
-                rowState.push(persons.map(function (x) { return { name: x.innerHTML, id: x.id } }))
+                //I'd like to do this:
+                // rowState.push(persons.map(person => person.serialize()))
+                rowState.push(persons.map(function (x) {
+                    return {
+                        name: x.getAttribute('data-person-name'),
+                        id: x.getAttribute('data-person-id'),
+                        color: x.getAttribute('data-person-color')
+                    }
+                }))
             }
             stageState.push(rowState);
         }
@@ -148,7 +191,8 @@ class Stage {
                     spot.removePerson(person);
                 }
                 for (let personRep of col) {
-                    let person = new Person(personRep.name, personRep.id)
+                    //I'd like to be able to have a handle on the person instead of creating new
+                    let person = new Person(personRep.name, personRep.id, personRep.color)
                     spot.addPerson(person)
                 }
             }
@@ -174,11 +218,30 @@ class Stage {
             spot.removePerson(person);
         }
     }
+    clone(newId) {
+        let s = this.serialize()
+        let state = JSON.parse(s);
+        let m = state.length;
+        let n = state[0].length;
+        let newStage = new Stage(m, n, newId, this.numberLineRange)
+        for (let [i, row] of state.entries()) {
+            for (let [j, col] of row.entries()) {
+                // console.log(i,j)
+                let spot = newStage.spots[i * row.length + j];
+                for (let personRep of col) {
+                    let person = new Person(personRep.name, personRep.id, personRep.color)
+                    spot.addPerson(person)
+                }
+            }
+        }
+        return newStage
+
+    }
 }
 
 class Scene {
-    constructor(Stages, title, id) {
-        this.Stages = Stages;
+    constructor(stages, title, id) {
+        this.stages = stages;
         this.title = title;
         this.el = document.createElement("div");
         this.el.id = id
@@ -198,7 +261,7 @@ class Scene {
         this.el.appendChild(titleEl);
         let stagesDiv = document.createElement("div");
         stagesDiv.classList.add("stages-list")
-        for (let stage of Stages) {
+        for (let stage of stages) {
             stagesDiv.appendChild(stage.el)
         }
         this.el.appendChild(stagesDiv);
@@ -206,13 +269,44 @@ class Scene {
     serialize() {
         return JSON.stringify({
             title: this.title,
-            stages:this.Stages.map(x => x.serialize()),
-            id: this.id})
+            stages: this.stages.map(x => x.serialize()),
+            id: this.id
+        })
     }
     deserialize(str) {
-        let {title, stages, id} = JSON.parse(str)
-        this.title=title;
-        stages.forEach((x, i) => this.Stages[i].deserialize(x))
+        let { title, stages, id } = JSON.parse(str)
+        this.title = title;
+        this.titleEl.innerText = title;
+        stages.forEach((x, i) => this.stages[i].deserialize(x))
         this.id = id
     }
+    clone() {
+        let clonedStages = this.stages.map(x => x.clone(`scene-${this.id}-stage-${x.id}`))
+        let newScene = new Scene(clonedStages, `cloned ${this.title}`, 'asdf')
+        return newScene
+    }
+}
+
+class Song {
+    constructor(scenes, title, id) {
+        this.scenes = scenes;
+        this.title = title;
+        this.id = id;
+        this.currentSceneIndex = 0;
+    }
+    serialize() {
+        return JSON.stringify({
+            title: this.title,
+            scenes: this.scenes.map(x => x.serialize()),
+            id: this.id
+        })
+    }
+    deserialize(str) {
+        let { title, scenes, id } = JSON.parse(str)
+        this.title = title;
+        this.titleEl.innerText = title;
+        scenes.forEach((x, i) => this.scenes[i].deserialize(x))
+        this.id = id;
+    }
+
 }
