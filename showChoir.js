@@ -293,6 +293,9 @@ class Song {
         this.title = title;
         this.id = id;
         this.currentSceneIndex = 0;
+        this.el = document.createElement('div')
+        this.el.id = this.id;
+        this.el.appendChild(scenes[this.currentSceneIndex].el);
     }
     serialize() {
         return JSON.stringify({
@@ -307,6 +310,11 @@ class Song {
         this.titleEl.innerText = title;
         scenes.forEach((x, i) => this.scenes[i].deserialize(x))
         this.id = id;
+    }
+    setCurrentScene(currentSceneIndex){
+        this.el.removeChild(this.scenes[this.currentSceneIndex].el)
+        this.currentSceneIndex = currentSceneIndex;
+        this.el.appendChild(this.scenes[this.currentSceneIndex].el);
     }
 
 }

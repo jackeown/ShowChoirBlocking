@@ -92,8 +92,8 @@
             margin: auto;
         }
 
-        #house-left,
-        #house-right {
+        div[id$="house-left"],
+        div[id$="house-right"] {
             /* max-width: 100px; */
             width: 10%;
         }
@@ -113,13 +113,13 @@
             flex-direction: column;
         }
 
-        .back-arrow {
+        #back-arrow {
             position: absolute;
             top: 50vh;
             left: 2px;
         }
 
-        .forward-arrow {
+        #forward-arrow {
             position: absolute;
             top: 50vh;
             right: 2px;
@@ -136,10 +136,10 @@
     <button id="save-file"><i class="material-icons">download</i></button>
 
     <button id="duplicate"><i class="material-icons">control_point_duplicate</i></button>
-    <i class="material-icons forward-arrow"
-        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_forward_ios</i>
-    <i class="material-icons back-arrow"
-        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_back_ios</i>
+    <button id="forward-arrow"><i class="material-icons forward-arrow"
+        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_forward_ios</i></button>
+    <button id="back-arrow"><i class="material-icons back-arrow"
+        style="color: rgb(106, 104, 104); text-shadow: 0 0 3px #000;">arrow_back_ios</i></button>
 
     <script src="./sillyMaths.js"></script>
     <script src="./showChoir.js"></script>
@@ -148,6 +148,7 @@
         let houseleft = new Stage(1, 1, "house-left");
         let houseright = new Stage(1, 1, "house-right");
         let scene = new Scene([houseleft, stage, houseright], 'default scene', 'scene1id')
+        window.song = new Song([scene], 'opener', 'openerId')
         let names = [{ id: 1, name: 'James McKeown', color: 0 },
         { id: 2, name: 'Michael', color: 0 },
         { id: 3, name: 'Jack', color: 0 },
@@ -177,9 +178,43 @@
         }
         // houseleft.addPerson(new Person("Jack", 'person-1'));
         // houseright.addPerson(new Person("James", 'person-2'));
-        document.body.append(scene.el);
+        document.body.append(song.el);
+        // document.body.append(scene.el);
         // document.body.append(stage.el);
         // document.body.append(offstage.el);
+        function addSceneDupToSong(){
+            let song = window.song;
+            console.log(song)
+            let currentSceneIndex = song.currentSceneIndex;
+            console.log(`currentSceneIndex: ${currentSceneIndex}`)
+            let newScenes = song.scenes.slice(0, currentSceneIndex+1)
+            newScenes = newScenes.concat([song.scenes[currentSceneIndex].clone()])
+            newScenes = newScenes.concat(song.scenes.slice(currentSceneIndex+1))
+            console.log(`new scene length: ${newScenes.length}`)
+            window.newScenes = newScenes;
+            let newSong = new Song(newScenes, song.title, song.id);
+            document.body.removeChild(song.el);
+            document.body.appendChild(newSong.el);
+            window.song = newSong; //preserve global handle on song
+            window.newSong = newSong;
+
+        }
+        function backScene(){
+            console.log('backScene')
+            let song = window.song;
+            let currentSceneIndex = song.currentSceneIndex;
+            if (currentSceneIndex==0) return
+            song.setCurrentScene(song.currentSceneIndex - 1)
+            console.log(song.currentSceneIndex);
+        }
+        function forwardScene(){
+            console.log('forwardScene')
+            let song = window.song;
+            let currentSceneIndex = song.currentSceneIndex;
+            if (currentSceneIndex==song.scenes.length) return
+            song.setCurrentScene(song.currentSceneIndex + 1)
+            console.log(song.currentSceneIndex);
+        }
         function downloadState(state) {
             const link = document.createElement("a");
             link.href = URL.createObjectURL(new Blob([state], { type: "application/json" }));
@@ -196,6 +231,11 @@
         document.getElementById('upload').addEventListener('click', _ => scene.deserialize(window.localStorage[`scene.${scene.id}`]))
         document.getElementById('upload-file').addEventListener('click', _ => uploadState(), false)
         document.getElementById('save-file').addEventListener('click', _ => downloadState(scene.serialize()))
+        document.getElementById('duplicate').addEventListener('click', _ => addSceneDupToSong())
+        document.getElementById('back-arrow').addEventListener('click', _ => backScene())
+        document.getElementById('forward-arrow').addEventListener('click', _ => forwardScene())
+
+
     </script>
 
 
