@@ -1,0 +1,3 @@
+[submodule "mobile-drag-drop"]
+    path = mobile-drag-drop
+    url = https://github.com/timruffles/mobile-drag-drop.git
