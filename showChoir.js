@@ -43,6 +43,12 @@ class Person {
         // this.el.innerText = name;
         // this.el.addEventListener('mouseover', function(e){alert(name);e.preventDefault();})
         this.el.innerText = id;
+
+        let personLabel = document.createElement("span");
+        personLabel.classList.add("person_label");
+        personLabel.innerText = name;
+        this.el.appendChild(personLabel);
+
         this.el.addEventListener("dragstart", personDragHandler(this));
     }
     serialize() {
@@ -152,6 +158,7 @@ class Stage {
             for (let i = -numberLineRange; i <= numberLineRange; i++) {
                 let d = document.createElement("div")
                 d.id = `number-${i}`
+                // d.style = "margin:0px;padding:0px;display:flex;justify-content:center;align-items:center;width:"
                 d.innerText = Math.abs(i)
                 this.numberLineDiv.appendChild(d)
             }
