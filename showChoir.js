@@ -161,13 +161,15 @@ class Stage {
             this.el.append(row);
         }
         this.numberLineDiv = document.createElement("div");
-        this.numberLineDiv.style = "display: flex; justify-content:space-around;"
+        this.numberLineDiv.style = "display: flex; justify-content:space-between;"
         if (!(numberLineRange === undefined)) {
-            for (let i = -numberLineRange; i <= numberLineRange; i++) {
+            for (let i = -2*numberLineRange; i <= 2*numberLineRange; i++) {
                 let d = document.createElement("div")
-                d.id = `number-${i}`
+                d.id = `number-${i/2}`
                 // d.style = "margin:0px;padding:0px;display:flex;justify-content:center;align-items:center;width:"
-                d.innerText = Math.abs(i)
+                if(i % 2 ==0){
+                    d.innerText = Math.abs(i/2)
+                }
                 this.numberLineDiv.appendChild(d)
             }
             this.el.append(this.numberLineDiv)
