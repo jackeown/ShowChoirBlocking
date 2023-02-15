@@ -27,9 +27,10 @@ function personDragHandler(person) {
 }
 
 class Person {
-    constructor(name, id, color) {
+    constructor(name, id, color, data) {
         this.id = id;
         this.name = name;
+        this.data = data;
         this.spot = null;
 
         this.el = document.createElement("div");
@@ -39,10 +40,14 @@ class Person {
         this.el.setAttribute('data-person-id', id);
         this.el.setAttribute('data-person-name', name);
         this.el.setAttribute('data-person-color', color);
+        this.el.setAttribute('data-person-data', data);
+
 
         // this.el.innerText = name;
         // this.el.addEventListener('mouseover', function(e){alert(name);e.preventDefault();})
-        this.el.innerText = id;
+        // this.el.innerText = id;
+        this.el.innerText = data;
+
 
         let personLabel = document.createElement("span");
         personLabel.classList.add("person_label");
@@ -52,21 +57,24 @@ class Person {
         this.el.addEventListener("dragstart", personDragHandler(this));
     }
     serialize() {
-        return JSON.stringify({ name: this.name, id: this.id, color: this.color })
+        return JSON.stringify({ name: this.name, id: this.id, color: this.color, data: this.data })
     }
     deserialize(str) {
-        let { name, id, color } = JSON.parse(str)
+        let { name, id, color, data } = JSON.parse(str)
         this.name = name;
         this.id = id;
+        this.data = data;
         this.color = color;
         this.el.style = `background:${color};`
         this.el.setAttribute('data-person-id', id);
-        this.el.setAttribute('data-person-name', name)
-        this.el.innerText = id;
+        this.el.setAttribute('data-person-name', name);
+        this.el.setAttribute('data-person-data', data);
+
+        this.el.innerText = data;
     }
     clone() {
-        let { name, id, color } = JSON.parse(this.serialize())
-        return new Person(name, id, color)
+        let { name, id, color, data } = JSON.parse(this.serialize())
+        return new Person(name, id, color, data)
     }
 }
 
@@ -180,7 +188,9 @@ class Stage {
                     return {
                         name: x.getAttribute('data-person-name'),
                         id: x.getAttribute('data-person-id'),
-                        color: x.getAttribute('data-person-color')
+                        color: x.getAttribute('data-person-color'),
+                        data: x.getAttribute('data-person-data'),
+
                     }
                 }))
             }
@@ -199,7 +209,7 @@ class Stage {
                 }
                 for (let personRep of col) {
                     //I'd like to be able to have a handle on the person instead of creating new
-                    let person = new Person(personRep.name, personRep.id, personRep.color)
+                    let person = new Person(personRep.name, personRep.id, personRep.color, personRep.data)
                     spot.addPerson(person)
                 }
             }
@@ -236,7 +246,7 @@ class Stage {
                 // console.log(i,j)
                 let spot = newStage.spots[i * row.length + j];
                 for (let personRep of col) {
-                    let person = new Person(personRep.name, personRep.id, personRep.color)
+                    let person = new Person(personRep.name, personRep.id, personRep.color, personRep.data)
                     spot.addPerson(person)
                 }
             }

@@ -218,7 +218,11 @@
         // let url = "https://drive.google.com/uc?export=download&id=1nMyUaCNyVZmjXBP_y-dCF1Ai286W4gKE";
         let url = "https://remote.mckeown.in/files/students.json"
 
-        fetch(url).then(x => console.log(x.text()))
+        fetch(url)
+        .then(x => x.json())
+        .then(x => window.students = x)
+        .then(_ => window.students.forEach((y,i) => {y.id=i}))
+        .then(_ => addPeopleToStage(window.students, stage))
         // fetch(url, {mode:'no-cors'}).then(x => console.log(x.text()))
         // fetch(url, {mode:'no-cors'}).then(x => x.json()).then(
         //     function(names){
@@ -231,7 +235,7 @@
                 let color;
                 if (person.color === 1) { color = '#ff3399'; }
                 else { color = '#0066ff'; }
-                stage.addPerson(new Person(person.name, `${person.id}`, color));
+                stage.addPerson(new Person(person.name, person.id, color, person.grade));
             }
         }
 
